@@ -1,0 +1,9 @@
+idea
+
+grid like 500 x 500
+odd number x odd number
+31 x 31
+
+10 / 961 
+
+hello world!

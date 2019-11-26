@@ -1,7 +1,10 @@
 package application;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class FileControl {
@@ -14,6 +17,8 @@ public class FileControl {
         // read each instruction and update the graph
         while (scn.hasNext()) {
           String instruction = scn.nextLine();
+          System.out.println(instruction);
+          log = log.concat(instruction + '\r');
           translateInstruction(graph, instruction);
         }
         scn.close();
@@ -75,11 +80,19 @@ public class FileControl {
 
 
   public static void writeLog(String filePath) {
-
+    try {
+      
+      BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
+      writer.write(log);
+      writer.close();
+    } catch(IOException e) {
+      
+    }
   }
 
   public static void main(String args[]) {
     String userDir = System.getProperty("user.dir");
     FileControl.constructGraph(new Graph(), userDir + "/application/testInput.txt");
+    FileControl.writeLog(userDir + "/log.txt");
   }
 }
