@@ -4,22 +4,40 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Random;
 import javafx.application.Application;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.geometry.VPos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class Main extends Application {
@@ -28,146 +46,242 @@ public class Main extends Application {
 
   
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////
-  
-  
-  void createCenterUser(Pane canvas, Pane interactionPane, Profile centerUser) throws FileNotFoundException {
-
+  private Pane createCanvasPane(Pane canvas) throws FileNotFoundException{
     /*
-     * make this into a module
+     * 480 x 480 pane center aligned
      */
-    // size gets bigger when there are too many users
-    if (centerUser.getFriends().size() / (canvas.getPrefHeight() * canvas.getPrefWidth()) > .000001) {
-      System.out.println("size upgrade");
-      canvas.setPrefSize(canvas.getPrefWidth() + 64, canvas.getPrefHeight() + 64);
-    }
+    Pane canvasPane = new Pane();
+    GridPane.setMargin(canvasPane, new Insets(10, 10, 10, 10));
+    canvasPane.setPrefSize(480, 480);
+    canvasPane.setBackground(
+        new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
 
-    // index array
-    int indexX = (int) canvas.getPrefWidth() / 32;
-    int indexY = (int) canvas.getPrefHeight() / 32;
-
-    int[][] Array = new int[indexY][indexX];
-
-    for (int i = indexY / 2; i <= indexY / 2 + 2; i++) {
-      for (int j = indexX / 2; j <= indexX / 2 + 2; j++) {
-        Array[i][j] = 1;
-      }
-    }
-
-    /*
-     * clean this mass
-     */
-    try {
-      ProfileGUI centerUserGUI =
-          new ProfileGUI(centerUser, canvas.getPrefWidth() / 2, canvas.getPrefHeight() / 2);
-      centerUserGUI.setImageSize(64, 64);
-      centerUserGUI.setTranslateX(-32);
-      centerUserGUI.setTranslateY(-32);
-      int numOfFriends = centerUser.getFriends().size();
-      for (int friendIndex = 0; friendIndex < numOfFriends; friendIndex++) {
-        int randNumFrom = (indexX * indexY - 9 - friendIndex);
-        Random rnd = new Random();
-        int position = rnd.nextInt(randNumFrom);
-        int i = 0;
-        int j = 0;
-        for (i = 0; i < indexY && position != 0; i++) {
-          for (j = 0; j < indexX && position != 0; j++) {
-            if (Array[i][j] == 0) {
-              position--;
-              if (position == 0)
-                break;
-            }
-          }
-          if (position == 0)
-            break;
-        }
-
-        Array[i][j] = 1;
-        ProfileGUI friend =
-            new ProfileGUI(centerUser.getFriends().get(friendIndex), i * 32, j * 32);
-        setFriendUI(friend, interactionPane);
-        friend.setTranslateX(-16);
-        friend.setTranslateY(-16);
-        Line line = new Line(centerUserGUI.getLayoutX(), centerUserGUI.getLayoutX(),
-            friend.getLayoutX(), friend.getLayoutY());
-        canvas.getChildren().addAll(line, friend);
-      }
-      canvas.getChildren().add(centerUserGUI);
-    } catch (Exception e) {
-      System.out.println(e);
-    }
+    // create UW-Madison logo
+    ImageView uwMadisonLogo =
+        new ImageView(new Image(new FileInputStream("application/madisonLogo.png")));
+    uwMadisonLogo.setFitHeight(80);
+    uwMadisonLogo.setPreserveRatio(true);
+    uwMadisonLogo.setLayoutX(10);
+    uwMadisonLogo.setLayoutY(390);
+    
+    canvasPane.getChildren().addAll(canvas, uwMadisonLogo);
+    return canvasPane;
+  }
+  
+  private Pane createCanvas() {
+    Pane canvas = new Pane();
+    
+    return canvas;
+  }
+  
+  private void setCenterUser(Pane canvas, Profile centerUser) throws FileNotFoundException{
+    // set size of a canvas depending on the number of friend
+    canvas.setPrefSize(500, 500);
+    ImageView friendlyBucky = new ImageView(new Image(new FileInputStream("application/friendlyBucky.png")));
+    friendlyBucky.setFitHeight(64);
+    friendlyBucky.setPreserveRatio(true);
+    friendlyBucky.setLayoutX(250);
+    friendlyBucky.setLayoutY(250);
+    // create instance for each friend and add to the canvas in a location
+    
+    
+    canvas.getChildren().add(friendlyBucky);
   }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  private Pane createCenterUserPane(Image centerUserImage, String userName, String userBio) throws FileNotFoundException {
+    
+    Pane centerUserPane = new Pane();
+    GridPane.setMargin(centerUserPane, new Insets(10, 10, 10, 10));
+    centerUserPane.setBorder(new Border(new BorderStroke(Color.WHITE, 
+        BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(3))));
+    centerUserPane.setPrefSize(280, 180);
+    ImageView centerUserImageView = new ImageView(centerUserImage);
+    centerUserImageView.setFitWidth(100);
+    centerUserImageView.setPreserveRatio(true);
+    centerUserImageView.setLayoutX(10);
+    centerUserImageView.setLayoutY(10);
+    
+    Label userNameLabel = new Label(userName);
+    userNameLabel.setLayoutX(150);
+    userNameLabel.setLayoutY(10);
+    
+    Text userBioText = new Text(userBio);
+    userBioText.setLayoutX(150);
+    userBioText.setLayoutY(50);
+    
+    HBox links = createSnsLinkPane();
+    links.setLayoutX(100);
+    links.setLayoutY(130);
+    
+    centerUserPane.getChildren().addAll(centerUserImageView, userNameLabel, userBioText, links);
+    return centerUserPane;
+  }
+  
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  public void setFriendUI(ProfileGUI friend, Pane interactionPane) {
-    Pane friendPane = new Pane();
-    Label testLabel = new Label("hello test test");
-    friendPane.getChildren().add(testLabel);
-    friendPane.setVisible(false);
-    friend.addEventHandler(MouseEvent.MOUSE_CLICKED, (e) -> {
-      System.out.println("debug");
-      if(friendPane.isVisible() == false)
-        friendPane.setVisible(true);
-      else
-        friendPane.setVisible(false);
+  private Pane createUserFindPane() {
+    Pane userFindPane = new Pane();
+    GridPane.setMargin(userFindPane, new Insets(0, 10, 0, 10));
+    userFindPane.setPrefSize(280, 30);
+    TextField userNameTextField = new TextField("type user name here...");
+    userNameTextField.setPrefSize(150, 30);
+    userNameTextField.setLayoutX(0);
+    Button findButton = new Button("Find");
+    findButton.setPrefSize(50,30);
+    findButton.setLayoutX(175);
+    
+    // event handler
+    findButton.setOnAction(e -> {
+      findUser(userNameTextField.getText());
+//      setFriendPane();
       });
     
-    interactionPane.getChildren().add(friendPane);
+    
+    userFindPane.getChildren().addAll(userNameTextField, findButton);
+    
+    return userFindPane;
   }
   
+  private Profile findUser(String userNanme) {
+    return null;
+  }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+  private Pane createConosole() {
+    Pane console = new Pane();
+    GridPane.setMargin(console, new Insets(10, 10, 10, 10));
+    console.setBorder(new Border(new BorderStroke(Color.WHITE, 
+        BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(3))));
+    console.setPrefSize(280, 80);
+    return console;
+  }
+  
+  private void setConsole(TextField userNameTextField) {
+    String userName = userNameTextField.getText();
+    
+    // back end need to be done
+    /*
+     * find -> textfield -> string -> string compare -> is user here? -> ProfileManager.method List -> Profile.getName -> Systemout.println
+     *                                                           -> error -> user is not found in our data
+     */
+    
+  }
   
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+  private Pane createFriendPane(Profile centerUser, Profile friend) throws FileNotFoundException {
+    Pane friendPane = new Pane();
+    GridPane.setMargin(friendPane, new Insets(0, 10, 0, 10));
+    friendPane.setBorder(new Border(new BorderStroke(Color.WHITE, 
+        BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(3))));
+    friendPane.setPrefSize(280, 130);
+    
+    ImageView friendImage =
+        new ImageView(new Image(new FileInputStream("application/bucky.png")));
+    friendImage.setFitWidth(50);
+    friendImage.setPreserveRatio(true);
+    friendImage.setLayoutX(10);
+    friendImage.setLayoutY(10);
+    
+    Button addButton = new Button("ADD");
+    addButton.setPrefWidth(50);
+    addButton.setLayoutX(10);
+    addButton.setLayoutY(80);
+    
+    HBox links = createSnsLinkPane();
+    links.setLayoutX(60);
+    links.setLayoutY(10);
+    
+    friendPane.getChildren().addAll(friendImage, addButton, links);
+    return friendPane;
+  }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+  /*
+   * Misc methods
+   */
+  
+  private HBox createSnsLinkPane() throws FileNotFoundException {
+    HBox snsLinkPane = new HBox();
+    
+    // linkedin, fb, insta, youtube
+    snsLinkPane.setSpacing(5);
+    ImageView linkedIn =
+        new ImageView(new Image(new FileInputStream("application/linkedIn.png"), 30, 30, true, true));
+    ImageView facebook =
+        new ImageView(new Image(new FileInputStream("application/facebook.png"), 30, 30, true, true));
+    ImageView instagram =
+        new ImageView(new Image(new FileInputStream("application/instagram.png"), 30, 30, true, true));
+    ImageView youtube =
+        new ImageView(new Image(new FileInputStream("application/youtube.png"), 30, 30, true, true));
+    
+    snsLinkPane.getChildren().addAll(linkedIn, facebook, instagram, youtube);
+    
+    return snsLinkPane;
+  }
+  
+  private Pane createLinkPane() throws FileNotFoundException{
+    Pane linkPane = new Pane();
+    GridPane.setMargin(linkPane, new Insets(5,0,5,0));
+    linkPane.setPrefSize(280, 30);
+    ImageView gitHub =
+        new ImageView(new Image(new FileInputStream("application/GitHub.png"), 30, 30, true, true));
+    gitHub.setLayoutX(260);
+    linkPane.getChildren().add(gitHub);
+    return linkPane;
+  }
+  
+////////////////////////////////////////////////////////////////////////////////////////////////////
+  
   
   @Override
   public void start(Stage primaryStage) throws Exception {
 
-    HBox root = new HBox();
-    Pane canvasPane = new Pane();
-    Pane canvas = new Pane();
-
-    canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, e -> {
-      origCanvasTransX = e.getX();
-      origCanvasTransY = e.getY();
-    });
-    canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, e -> {
-      canvas.setTranslateX(e.getSceneX() - origCanvasTransX);
-      canvas.setTranslateY(e.getSceneY() - origCanvasTransY);
-
-    });
-    canvasPane.getChildren().add(canvas);
-    canvasPane.setPrefSize(500, 500);
-    canvas.setPrefSize(480, 480);
-    // translation added later
-    canvasPane.setBackground(
-        new Background(new BackgroundFill(Color.CADETBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
-    canvas.setBackground(
-        new Background(new BackgroundFill(Color.LIGHTSLATEGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
-
-    VBox status = new VBox();
-    Pane centerUserPane = new Pane();
-    centerUserPane.setPrefSize(300, 200);
-    centerUserPane.setBackground(
-        new Background(new BackgroundFill(Color.HOTPINK, CornerRadii.EMPTY, Insets.EMPTY)));
-
-    Pane interactionPane = new Pane();
+    /*
+     * root
+     *  -> canvasPane
+     *      -> canvas
+     *  
+     *    -> userPane
+     *        -> profileImage
+     *        -> profileBio 
+     *    -> userFindPane
+     *        -> userFindTextBox
+     *        -> userFindButton
+     *    -> friendPane
+     *        -> firendImage
+     *        -> friendName
+     *        -> friendButton
+     *        -> unfriendButton
+     */
     
     
-    createCenterUser(canvas, interactionPane, new Profile("center"));
+    GridPane root = new GridPane();
+    root.setPrefSize(800, 500);
+    root.setBackground(
+        new Background(new BackgroundFill(Color.DARKRED, CornerRadii.EMPTY, Insets.EMPTY)));
+    Pane canvas = createCanvas();
+    Pane canvasPane = createCanvasPane(canvas);
+    Pane centerUserPane = createCenterUserPane(new Image(new FileInputStream("application/bucky.png")), "john", "john is my friend");
+    Pane userFindPane = createUserFindPane();
+    Pane console = createConosole();
+    Pane linkPane = createLinkPane();
     
+    // create test profile
+    Profile test = new Profile("john");
+    test.testInit();
+    Profile testFriend = new Profile("mark");
+    testFriend.testInit();
+
+    Pane friendPane = createFriendPane(test, testFriend);
     
-    interactionPane.setPrefSize(300, 300);
-    interactionPane.setBackground(
-        new Background(new BackgroundFill(Color.FORESTGREEN, CornerRadii.EMPTY, Insets.EMPTY)));
-
-    status.getChildren().addAll(centerUserPane, interactionPane);
-
-
-    root.getChildren().addAll(canvasPane, status);
-
-
-    // primaryStage.setTitle(APP_TITLE);
+    root.add(canvasPane, 0, 0, 1, 5);
+    root.add(centerUserPane, 1, 0, 1, 1);
+    root.add(userFindPane, 1, 1, 1, 1);
+    root.add(console, 1, 2, 1, 1);
+    root.add(friendPane, 1, 3, 1, 1);
+    root.add(linkPane, 1, 4, 1, 1);
+    
+    setCenterUser(canvas, test);
+    
     Scene mainScene = new Scene(root, 800, 500);
     primaryStage.setScene(mainScene);
     primaryStage.show();

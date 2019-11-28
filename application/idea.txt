@@ -1,9 +1,10 @@
-idea
+find -> textfield -> string -> string compare -> is user here? -> ProfileManager.method List -> Profile.getName -> Systemout.println
+                                                               -> error -> user is not found in our data
+      
+(String userName)
+      button ->                                                          
+e -> {
 
-grid like 500 x 500
-odd number x odd number
-31 x 31
 
-10 / 961 
 
-hello world!
+}
