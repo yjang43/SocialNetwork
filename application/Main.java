@@ -77,15 +77,31 @@ public class Main extends Application {
   private void setCenterUser(Pane canvas, Profile centerUser) throws FileNotFoundException{
     // set size of a canvas depending on the number of friend
     canvas.setPrefSize(500, 500);
-    ImageView friendlyBucky = new ImageView(new Image(new FileInputStream("application/friendlyBucky.png")));
-    friendlyBucky.setFitHeight(64);
-    friendlyBucky.setPreserveRatio(true);
-    friendlyBucky.setLayoutX(250);
-    friendlyBucky.setLayoutY(250);
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // temporary gui part
+    ImageView centerBucky = new ImageView(new Image(new FileInputStream("application/bucky.png")));
+    centerBucky.setFitHeight(128);
+    centerBucky.setPreserveRatio(true);
+    centerBucky.setLayoutX(250 - 64);
+    centerBucky.setLayoutY(250 - 64);
+    
+    for(int i = 0; i < 4; i++) {
+      Random rnd = new Random();
+      
+      ImageView fellowBucky = new ImageView(new Image(new FileInputStream("application/bucky.png")));
+      fellowBucky.setFitHeight(64);
+      fellowBucky.setPreserveRatio(true);
+      fellowBucky.setLayoutX(rnd.nextInt(400));
+      fellowBucky.setLayoutY(rnd.nextInt(400));
+      Line line = new Line(centerBucky.getLayoutX()+64, centerBucky.getLayoutY()+64, fellowBucky.getLayoutX()+32, fellowBucky.getLayoutY()+32);
+      line.setStrokeWidth(3);
+      canvas.getChildren().addAll(line, fellowBucky);
+    }
+    
     // create instance for each friend and add to the canvas in a location
     
     
-    canvas.getChildren().add(friendlyBucky);
+    canvas.getChildren().add(centerBucky);
   }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
   
@@ -153,6 +169,14 @@ public class Main extends Application {
     console.setBorder(new Border(new BorderStroke(Color.WHITE, 
         BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(3))));
     console.setPrefSize(280, 80);
+    
+    
+    // delete after A2
+    Label tmpLabel = new Label("deb -> sapan -> mark");
+    tmpLabel.setStyle("-fx-font-size: 15pt");
+    tmpLabel.setLayoutX(10);
+    tmpLabel.setLayoutY(10);
+    console.getChildren().add(tmpLabel);
     return console;
   }
   
@@ -183,15 +207,21 @@ public class Main extends Application {
     friendImage.setLayoutY(10);
     
     Button addButton = new Button("ADD");
-    addButton.setPrefWidth(50);
+    addButton.setPrefWidth(100);
     addButton.setLayoutX(10);
     addButton.setLayoutY(80);
     
-    HBox links = createSnsLinkPane();
-    links.setLayoutX(60);
-    links.setLayoutY(10);
+    // remove after A2 and ADD button to toggle back and forth to remove
+    Button removeButton = new Button("REMOVE");
+    removeButton.setPrefWidth(100);
+    removeButton.setLayoutX(120);
+    removeButton.setLayoutY(80);
     
-    friendPane.getChildren().addAll(friendImage, addButton, links);
+    HBox links = createSnsLinkPane();
+    links.setLayoutX(100);
+    links.setLayoutY(30);
+    
+    friendPane.getChildren().addAll(friendImage, addButton, removeButton, links);
     return friendPane;
   }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -201,7 +231,9 @@ public class Main extends Application {
   
   private HBox createSnsLinkPane() throws FileNotFoundException {
     HBox snsLinkPane = new HBox();
-    
+    snsLinkPane.setBackground(
+        new Background(new BackgroundFill(Color.WHITESMOKE, CornerRadii.EMPTY, new Insets(-5))));
+
     // linkedin, fb, insta, youtube
     snsLinkPane.setSpacing(5);
     ImageView linkedIn =
@@ -210,10 +242,8 @@ public class Main extends Application {
         new ImageView(new Image(new FileInputStream("application/facebook.png"), 30, 30, true, true));
     ImageView instagram =
         new ImageView(new Image(new FileInputStream("application/instagram.png"), 30, 30, true, true));
-    ImageView youtube =
-        new ImageView(new Image(new FileInputStream("application/youtube.png"), 30, 30, true, true));
     
-    snsLinkPane.getChildren().addAll(linkedIn, facebook, instagram, youtube);
+    snsLinkPane.getChildren().addAll(linkedIn, facebook, instagram);
     
     return snsLinkPane;
   }
@@ -222,10 +252,14 @@ public class Main extends Application {
     Pane linkPane = new Pane();
     GridPane.setMargin(linkPane, new Insets(5,0,5,0));
     linkPane.setPrefSize(280, 30);
+    Button load = new Button("Load");
+    load.setLayoutX(10);
+    Button save = new Button("Save");
+    save.setLayoutX(60);
     ImageView gitHub =
         new ImageView(new Image(new FileInputStream("application/GitHub.png"), 30, 30, true, true));
     gitHub.setLayoutX(260);
-    linkPane.getChildren().add(gitHub);
+    linkPane.getChildren().addAll(load, save, gitHub);
     return linkPane;
   }
   
@@ -267,9 +301,7 @@ public class Main extends Application {
     
     // create test profile
     Profile test = new Profile("john");
-    test.testInit();
     Profile testFriend = new Profile("mark");
-    testFriend.testInit();
 
     Pane friendPane = createFriendPane(test, testFriend);
     
