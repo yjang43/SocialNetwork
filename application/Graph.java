@@ -1,3 +1,5 @@
+package application; 
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -244,4 +246,28 @@ public class Graph implements GraphADT {
 		// TODO Auto-generated method stub
 
 	}
+
+  @Override
+  public boolean addUser(Object user) {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
+  @Override
+  public boolean addFriend(Object user, Object friend) {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
+  @Override
+  public boolean deleteUser(Object user) {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
+  @Override
+  public boolean deleteFriend(Object user, Object friend) {
+    // TODO Auto-generated method stub
+    return false;
+  }
 }
