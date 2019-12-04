@@ -10,19 +10,21 @@ JRE =  java
 MP = --module-path javafx-sdk-11.0.2/lib --add-modules javafx.controls,javafx.fxml -Dfile.encoding=UTF-8 
 
 #TODO: edit with your classpath from Eclipse 
-CP =  -classpath javafx-sdk-11.0.2/lib/javafx.media.jar:javafx-sdk-11.0.2/lib/javafx.web.jar:javafx-sdk-11.0.2/lib/javafx.graphics.jar:javafx-sdk-11.0.2/lib/javafx.swing.jar:javafx-sdk-11.0.2/lib/javafx.fxml.jar:javafx-sdk-11.0.2/lib/javafx.controls.jar:javafx-sdk-11.0.2/lib/src.zip:javafx-sdk-11.0.2/lib/javafx.base.jar:javafx-sdk-11.0.2/lib/javafx-swt.jar:. application.Main
+CP =  -classpath javafx-sdk-11.0.2/lib/javafx.media.jar:javafx-sdk-11.0.2/lib/javafx.web.jar:javafx-sdk-11.0.2/lib/javafx.graphics.jar:javafx-sdk-11.0.2/lib/javafx.swing.jar:javafx-sdk-11.0.2/lib/javafx.fxml.jar:javafx-sdk-11.0.2/lib/javafx.controls.jar:javafx-sdk-11.0.2/lib/src.zip:javafx-sdk-11.0.2/lib/javafx.base.jar:javafx-sdk-11.0.2/lib/javafx-swt.jar:. 
+
+Target = application.Main
 
 SRC = application/*.java   
 
 APP = application.Main 
 
-ARGS = deb mark sapan  # place your command line args here
+ARGS = # place your command line args here
 
 compile:
 	$(JC) $(CP) $(SRC) 
 
 run:
-	$(JRE) $(MP) $(CP) $(APP) $(ARGS)
+	$(JRE) $(MP) $(CP) $(Target) $(APP) $(ARGS)
 
 jar:
 	jar -cvmf manifest.txt executable.jar .
