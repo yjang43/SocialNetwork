@@ -2,15 +2,25 @@ package application;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Optional;
 import java.util.Random;
+import javax.swing.JOptionPane;
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
+import javafx.scene.Cursor;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -39,6 +49,9 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import java.awt.Desktop;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class Main extends Application {
   double origCanvasTransX;
@@ -89,6 +102,7 @@ public class Main extends Application {
       Random rnd = new Random();
       
       ImageView fellowBucky = new ImageView(new Image(new FileInputStream("application/bucky.png")));
+//      addFriendEventHandler(fellowBucky, canvas, centerUser, centerUser.getFriends().get(i));
       fellowBucky.setFitHeight(64);
       fellowBucky.setPreserveRatio(true);
       fellowBucky.setLayoutX(rnd.nextInt(400));
@@ -102,6 +116,43 @@ public class Main extends Application {
     
     
     canvas.getChildren().add(centerBucky);
+  }
+  
+  private void addFriendEventHandler(ImageView friend, Pane canvas, Profile friendProfile, Profile centerUserProfile){
+    
+    friend.addEventHandler(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
+      @Override
+      public void handle(MouseEvent arg0) {
+        Group mutualFriendIndicators = mutualFriend(canvas, friendProfile, centerUserProfile);
+        canvas.getChildren().add(mutualFriendIndicators);
+        friend.setCursor(Cursor.HAND);
+      }
+    });
+    friend.addEventHandler(MouseEvent.MOUSE_EXITED, new EventHandler<MouseEvent>() {
+      @Override
+      public void handle(MouseEvent arg0) {
+        canvas.getChildren().remove(canvas.getChildren().size() - 1);
+        friend.setCursor(Cursor.DEFAULT);
+      }
+    });
+    friend.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+      @Override
+      public void handle(MouseEvent arg0) {
+        updateFriendPane();
+      }
+    });
+  }
+  
+  private Group mutualFriend(Pane canvasPane, Profile friend, Profile centerUser) {
+    Group lineGroup = new Group();
+    /*
+     * 
+     */
+    return lineGroup;
+  }
+  
+  private void updateFriendPane() {
+    
   }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
   
@@ -224,6 +275,8 @@ public class Main extends Application {
     friendPane.getChildren().addAll(friendImage, addButton, removeButton, links);
     return friendPane;
   }
+  
+  
 ////////////////////////////////////////////////////////////////////////////////////////////////////
   /*
    * Misc methods
@@ -238,10 +291,13 @@ public class Main extends Application {
     snsLinkPane.setSpacing(5);
     ImageView linkedIn =
         new ImageView(new Image(new FileInputStream("application/linkedIn.png"), 30, 30, true, true));
+    addLinkEventHandler(linkedIn, "https://linkedin.com");
     ImageView facebook =
         new ImageView(new Image(new FileInputStream("application/facebook.png"), 30, 30, true, true));
+    addLinkEventHandler(facebook, "https://fb.com");
     ImageView instagram =
         new ImageView(new Image(new FileInputStream("application/instagram.png"), 30, 30, true, true));
+    addLinkEventHandler(instagram, "https://instagram.com");
     
     snsLinkPane.getChildren().addAll(linkedIn, facebook, instagram);
     
@@ -254,18 +310,86 @@ public class Main extends Application {
     linkPane.setPrefSize(280, 30);
     Button load = new Button("Load");
     load.setLayoutX(10);
+    
+    load.setOnAction(new EventHandler<ActionEvent>() {
+      @Override
+      public void handle(ActionEvent arg0) {
+        String path = "";
+        TextInputDialog popup = new TextInputDialog("path...");
+        popup.setHeaderText("write down path for load");
+        Optional<String> result = popup.showAndWait();
+        if (result.isPresent()) {
+          path = result.get();
+        }
+        FileControl.writeLog(path);
+      }  
+    });
     Button save = new Button("Save");
     save.setLayoutX(60);
-    ImageView gitHub =
+    save.setOnAction(new EventHandler<ActionEvent>() {
+      @Override
+      public void handle(ActionEvent arg0) {
+        // TODO Auto-generated method stub
+        String path = "";
+        TextInputDialog popup = new TextInputDialog("path...");
+        popup.setHeaderText("write down path for save");
+        Optional<String> result = popup.showAndWait();
+        if (result.isPresent()) {
+          path= result.get();
+        }
+        FileControl.writeLog(path);
+      }  
+    });
+    
+    ImageView gitHub =  
         new ImageView(new Image(new FileInputStream("application/GitHub.png"), 30, 30, true, true));
+    addLinkEventHandler(gitHub, "https://github.com");
     gitHub.setLayoutX(260);
     linkPane.getChildren().addAll(load, save, gitHub);
     return linkPane;
   }
+
+  private static void openURL(String url) {
+
+    try {
+      if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+        Desktop.getDesktop().browse(new URI(url));
+      }
+    } catch (URISyntaxException e) {
+
+    } catch (IOException e) {
+
+    }
+  }
   
+  private void addLinkEventHandler(ImageView link, String url){
+    link.addEventHandler(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
+      @Override
+      public void handle(MouseEvent arg0) {
+        link.setCursor(Cursor.HAND);
+      }
+    });
+    link.addEventHandler(MouseEvent.MOUSE_EXITED, new EventHandler<MouseEvent>() {
+      @Override
+      public void handle(MouseEvent arg0) {
+        link.setCursor(Cursor.DEFAULT);
+      }
+    });
+    link.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+      @Override
+      public void handle(MouseEvent arg0) {
+        openURL(url);
+      }
+    });
+  }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  
+//  private Dialog<R> createPopupWindow(String title, String Function) {
+//    Pane popup = new Pane();
+//    
+//    return popup;
+//  }
+////////////////////////////////////////////////////////////////////////////////////////////////////
   @Override
   public void start(Stage primaryStage) throws Exception {
 
