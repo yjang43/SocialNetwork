@@ -2,10 +2,11 @@ package application;
 
 import java.util.LinkedList;
 import java.util.List;
+import javafx.scene.image.Image;
 
 public class Profile {
 	String user_Name; //user name
-	String user_Picture;
+	Image user_Picture;
 	boolean is_User_Center = false;
 	List<Profile> list_of_user_friends; //list of users friends
   
@@ -35,14 +36,14 @@ public class Profile {
 	/**
 	 * @return user name
 	 */
-	public String getUserPicture() {
+	public Image getUserPicture() {
 	  return this.user_Picture;
 	}
 	
 	/**
 	 * Sets users picture
 	 */
-	public void setUserPicture(String userPicture) {
+	public void setUserPicture(Image userPicture) {
 	  this.user_Picture = userPicture;
 	}
 	
