@@ -12,7 +12,7 @@ import java.util.Map;
  * @author zanzhang
  *
  */
-public class Graph implements GraphADT {
+public class Graph implements GraphADT<Profile> {
 
 	private int numOfUser = 0;
 	private int numOfEdges = 0;
@@ -248,25 +248,7 @@ public class Graph implements GraphADT {
 	}
 
   @Override
-  public boolean addUser(Object user) {
-    // TODO Auto-generated method stub
-    return false;
-  }
-
-  @Override
-  public boolean addFriend(Object user, Object friend) {
-    // TODO Auto-generated method stub
-    return false;
-  }
-
-  @Override
-  public boolean deleteUser(Object user) {
-    // TODO Auto-generated method stub
-    return false;
-  }
-
-  @Override
-  public boolean deleteFriend(Object user, Object friend) {
+  public boolean deleteFriend(Profile user, Profile friend) {
     // TODO Auto-generated method stub
     return false;
   }
