@@ -59,8 +59,12 @@ import java.net.URISyntaxException;
 
 public class Main extends Application {
   ProfileManager pm = new ProfileManager();
+  
+  LinkedList<ProfileGUI> profileGUI = new LinkedList<ProfileGUI>();
+  
   double origCanvasTransX = 0;
   double origCanvasTransY;
+  
   Profile centerUser = new Profile("default");
   Profile curFriend = null;
   
@@ -74,7 +78,6 @@ public class Main extends Application {
   Pane console;
   Pane friendPane;
   Pane linkPane;
-  
   
 ////////////////////////////////////////////////////////////////////////////////////////////////////
   private Pane createCanvasPane(Pane canvas) throws FileNotFoundException{
@@ -106,7 +109,6 @@ public class Main extends Application {
     Pane canvas = new Pane();
     // make it movable
     
-
     canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
       @Override
       public void handle(MouseEvent e) {
@@ -129,29 +131,40 @@ public class Main extends Application {
   
   private void setCenterUser(Pane canvas) throws FileNotFoundException{
     canvas.getChildren().clear();
+    double height = 480;
+    double width = 480;
+    for(int i = 0; i < centerUser.getListOfUsersFriends().size(); i++) {
+      profileGUI.add(new ProfileGUI(centerUser.getListOfUsersFriends().get(i)));
+    }
+    
     // set size of a canvas depending on the number of friend
-    double width = 500;
-    double height = 500;
+    while(((double)profileGUI.size()) / height > 0.01 &&
+        ((double)profileGUI.size()) / width > 0.01) {
+      height += 64;
+      width += 64;
+      
+      System.out.println("getting bigger... size: "+ profileGUI.size());
+      
+    }
+    
     canvas.setPrefSize(width, height);
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    
     // temporary gui part
-    ImageView centerBucky = new ImageView(new Image(new FileInputStream("application/bucky.png")));
-    centerBucky.setFitHeight(128);
-    centerBucky.setPreserveRatio(true);
-    centerBucky.setLayoutX(250 - 64);
-    centerBucky.setLayoutY(250 - 64);
+    
+    ProfileGUI centerBucky = new ProfileGUI(centerUser);
+    centerBucky.setImageSize(128);
+    centerBucky.setLayoutX(width/2 - 64);
+    centerBucky.setLayoutY(height/2 - 64);
     
     for(int i = 0; i < centerUser.getListOfUsersFriends().size(); i++) {
-      ImageView fellowBucky = new ImageView(new Image(new FileInputStream("application/bucky.png")));
-      System.out.println("2: " + centerUser.getListOfUsersFriends().get(i).user_Name);
-      addFriendEventHandler(fellowBucky, canvas, centerUser.getListOfUsersFriends().get(i), centerUser);
-      fellowBucky.setFitHeight(64);
-      fellowBucky.setPreserveRatio(true);
-      fellowBucky.setLayoutX(fellowBucky.hashCode() % width);
-      fellowBucky.setLayoutY(fellowBucky.hashCode()/width % height);
-      Line line = new Line(centerBucky.getLayoutX()+64, centerBucky.getLayoutY()+64, fellowBucky.getLayoutX()+32, fellowBucky.getLayoutY()+32);
+      addFriendEventHandler(profileGUI.get(i), canvas, centerUser.getListOfUsersFriends().get(i), centerUser);
+      profileGUI.get(i).setFitHeight(64);
+      profileGUI.get(i).setPreserveRatio(true);
+      profileGUI.get(i).setLayoutX(profileGUI.get(i).hashCode() % width);
+      profileGUI.get(i).setLayoutY(profileGUI.get(i).hashCode()/width % height);
+      Line line = new Line(centerBucky.getLayoutX()+64, centerBucky.getLayoutY()+64, profileGUI.get(i).getLayoutX()+32, profileGUI.get(i).getLayoutY()+32);
       line.setStrokeWidth(3);
-      canvas.getChildren().addAll(line, fellowBucky);
+      canvas.getChildren().addAll(line, profileGUI.get(i));
     }
     
     // create instance for each friend and add to the canvas in a location
@@ -182,8 +195,11 @@ public class Main extends Application {
     friend.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
       @Override
       public void handle(MouseEvent e) {
-        if(e.getTarget() instanceof ProfileGUI)
-          curFriend = (Profile) e.getTarget();
+        if(e.getTarget() instanceof ProfileGUI) {
+          ProfileGUI friendProfileGUI = (ProfileGUI) e.getTarget(); 
+          curFriend = friendProfileGUI.getProfile();
+          System.out.println("friend change");
+        }
         try {
           setFriendPane(friendPane);          
         }catch (FileNotFoundException f) {
@@ -192,6 +208,7 @@ public class Main extends Application {
         if(e.getClickCount() == 2) {
           try {
             centerUser = friendProfile;
+            profileGUI.clear();
             System.out.println(centerUser.user_Name);
             setCenterUser(canvas);            
             setCenterUserPane(centerUserPane);
@@ -235,6 +252,7 @@ public class Main extends Application {
     centerUserPane.getChildren().clear();
     Image centerUserImage = centerUser.user_Picture;
     String userName = centerUser.user_Name;
+
     String userBio = "user need to fill \nout their bio!";
     ImageView centerUserImageView = new ImageView(centerUserImage);
     centerUserImageView.setFitWidth(100);
@@ -243,10 +261,14 @@ public class Main extends Application {
     centerUserImageView.setLayoutY(10);
     
     Label userNameLabel = new Label(userName);
+    userNameLabel.setStyle("-fx-font-size: 15pt;"
+        + "-fx-text-fill: black;");
     userNameLabel.setLayoutX(150);
     userNameLabel.setLayoutY(10);
     
     Text userBioText = new Text(userBio);
+//    userBioText.setStyle("-fx-font-size: 15pt;"
+//        + "-fx-text-fill: white;");
     userBioText.setLayoutX(150);
     userBioText.setLayoutY(50);
     
@@ -302,7 +324,8 @@ public class Main extends Application {
     String userName = textField;
     String friendPathStr = "";
     Label consoleLabel = new Label();
-    consoleLabel.setStyle("-fx-font-size: 15pt");
+    consoleLabel.setStyle("-fx-font-size: 15pt;"
+        + "-fx-text-fill: black;");
     consoleLabel.setLayoutX(10);
     consoleLabel.setLayoutY(10);
     console.getChildren().add(consoleLabel);
@@ -351,6 +374,12 @@ public class Main extends Application {
     friendImage.setLayoutX(10);
     friendImage.setLayoutY(10);
     
+    Label name = new Label(curFriend.user_Name);
+    name.setStyle("-fx-font-size: 15pt;"
+        + "-fx-text-fill: black;");
+    name.setLayoutX(100);
+    name.setLayoutY(2);
+    
     Button addButton = new Button("ADD");
     addButton.setPrefWidth(100);
     addButton.setLayoutX(10);
@@ -382,7 +411,7 @@ public class Main extends Application {
     links.setLayoutX(100);
     links.setLayoutY(30);
     
-    friendPane.getChildren().addAll(friendImage, addButton, removeButton, links);
+    friendPane.getChildren().addAll(friendImage, name, addButton, removeButton, links);
   }
   
   
@@ -520,7 +549,7 @@ public class Main extends Application {
      *        -> unfriendButton
      */
     Profile a = new Profile("a");
-    Profile b = new Profile("a");
+    Profile b = new Profile("b");
     b.list_of_user_friends.add(centerUser);
     a.list_of_user_friends.add(centerUser);
     centerUser.list_of_user_friends.add(a);
@@ -570,12 +599,11 @@ public class Main extends Application {
 
 class ProfileGUI extends ImageView {
   private Profile profile;
-  Circle profileCircle;
+  double positionX;
+  double positionY;
 
-  public ProfileGUI(Profile profile, double x, double y) throws FileNotFoundException {
-    super(new Image(new FileInputStream("application/profileIcon.png"), 32, 32, true, true));
-    this.setLayoutX(x);
-    this.setLayoutY(y);
+  public ProfileGUI(Profile profile) throws FileNotFoundException {
+    super(profile.user_Picture);
     this.profile = profile;
     this.addEventHandler(MouseEvent.MOUSE_ENTERED, (e) -> {
       DropShadow shadow = new DropShadow();
@@ -594,8 +622,9 @@ class ProfileGUI extends ImageView {
     this.profile = profile;
   }
 
-  public void setImageSize(double x, double y) throws FileNotFoundException {
-    this.setImage(new Image(new FileInputStream("application/profileIcon.png"), x, y, true, true));
+  public void setImageSize(double height) throws FileNotFoundException {
+    super.setFitHeight(height);
+    super.setPreserveRatio(true);
   }
 }
 

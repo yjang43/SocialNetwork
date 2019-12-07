@@ -1,5 +1,7 @@
 package application;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.LinkedList;
 import java.util.List;
 import javafx.scene.image.Image;
@@ -17,6 +19,12 @@ public class Profile {
 	public Profile(String userName) {
 		this.user_Name = userName;
 		this.list_of_user_friends = new LinkedList<Profile>();
+		try {
+		  
+		  this.user_Picture = new Image(new FileInputStream("application/bucky.png"));
+		} catch(FileNotFoundException e) {
+		  System.out.println("error");
+		}
 	}
   
 	/**
