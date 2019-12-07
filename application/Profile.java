@@ -8,6 +8,7 @@ public class Profile {
 	String user_Name; //user name
 	Image user_Picture;
 	boolean is_User_Center = false;
+	boolean visited;
 	List<Profile> list_of_user_friends; //list of users friends
   
 	/**
