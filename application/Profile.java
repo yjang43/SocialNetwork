@@ -2,12 +2,13 @@ package application;
 
 import java.util.LinkedList;
 import java.util.List;
+import javafx.scene.image.Image;
 
 public class Profile {
 	String user_Name; //user name
-	String user_Picture;
+	Image user_Picture;
 	boolean is_User_Center = false;
-	List<List<Profile>> list_of_user_friends; //list of users friends
+	List<Profile> list_of_user_friends; //list of users friends
   
 	/**
 	* Constructor to set users name and create a list of users friends
@@ -15,13 +16,13 @@ public class Profile {
 	*/
 	public Profile(String userName) {
 		this.user_Name = userName;
-		this.list_of_user_friends = new LinkedList<List<Profile>>();
+		this.list_of_user_friends = new LinkedList<Profile>();
 	}
   
 	/**
 	 * @return list of users friends
 	 */
-	public List<List<Profile>> getListOfUsersFriends(){
+	public List<Profile> getListOfUsersFriends(){
 		return this.list_of_user_friends;
 	}	
 	
@@ -35,14 +36,14 @@ public class Profile {
 	/**
 	 * @return user name
 	 */
-	public String getUserPicture() {
+	public Image getUserPicture() {
 	  return this.user_Picture;
 	}
 	
 	/**
 	 * Sets users picture
 	 */
-	public void setUserPicture(String userPicture) {
+	public void setUserPicture(Image userPicture) {
 	  this.user_Picture = userPicture;
 	}
 	
@@ -55,10 +56,10 @@ public class Profile {
 	}
 	  
 	/**
-	 * Adds users friends and all of its friends
+	 * Adds users friends.
 	 * @param friends
 	 */
-	public void setFriends(List<Profile> friends) {
+	public void setFriends(Profile friends) {
 	   this.list_of_user_friends.add(friends);
 	}
 	

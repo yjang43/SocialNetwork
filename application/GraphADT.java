@@ -1,15 +1,15 @@
 package application;
 
-public interface GraphADT<T> {
-  boolean addUser(T user);
-  boolean addFriend(T user, T friend);
-  boolean deleteUser(T user);
-  boolean deleteFriend(T user, T friend);
-  boolean deleteUser(String profile);
-  boolean addUser(String profile);
-boolean addFriend(String profileA, String profileB);
+public interface GraphADT<Profile> {
+  boolean addUser(Profile user);
+  boolean addFriend(Profile user, Profile friend);
+  boolean deleteUser(Profile user);
+  boolean deleteFriend(Profile user, Profile friend);
+  boolean deleteUser(Profile profile);
+  boolean addUser(Profile profile);
+boolean addFriend(Profile profileA, Profile profileB);
 boolean clearNetwork();
 int order();
-boolean removeFriend(String profileA, String profileB);
+boolean removeFriend(Profile profileA, Profile profileB);
 int size();
 }

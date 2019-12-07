@@ -17,8 +17,8 @@ public class Graph implements GraphADT {
 	private int numOfUser = 0;
 	private int numOfEdges = 0;
 	
-	private Map< String,ArrayList<String>> myMap;
-	private ArrayList<String> vertexList;
+	private Map< Profile,ArrayList<Profile>> myMap;
+	private ArrayList<Profile> vertexList;
 	
 	/*
 	 * Default no-argument constructor
@@ -26,7 +26,7 @@ public class Graph implements GraphADT {
 	public Graph() {
 		vertexList = new ArrayList<>();
 		
-	    myMap = new HashMap<String,ArrayList<String>>(); 
+	    myMap = new HashMap<Profile,ArrayList<Profile>>(); 
 
 	}
 	
@@ -48,7 +48,7 @@ public class Graph implements GraphADT {
      * @return true if addUser, otherwise false
      */
 	@Override
-	public boolean addUser(String profile) {
+	public boolean addUser(Profile profile) {
 		if (profile==null) return false;
 				
 		else if (myMap.containsKey(profile))return true;
@@ -56,7 +56,7 @@ public class Graph implements GraphADT {
 		
 		// if user is not null and not already in the graph
 		else {
-			myMap.put(profile, new ArrayList<String>());
+			myMap.put(profile, new ArrayList<Profile>());
 			vertexList.add(profile);
 			numOfUser++;
 			return true;
@@ -79,7 +79,7 @@ public class Graph implements GraphADT {
 	 * @return true if delete friend, otherwise false
 	 */
 	@Override
-	public boolean deleteUser(String profile) {
+	public boolean deleteUser(Profile profile) {
 		if(profile==null||!myMap.containsKey(profile))return false;
 		
 		else {
@@ -110,7 +110,7 @@ public class Graph implements GraphADT {
 	 * @return true if successful adding a friend, otherwise false 
 	 */
 	@Override
-	public boolean addFriend(String profileA, String profileB) {
+	public boolean addFriend(Profile profileA, Profile profileB) {
 		boolean success = false;
 		if(profileA!=null&&profileB!=null) {
 			// condition 1:
@@ -121,7 +121,7 @@ public class Graph implements GraphADT {
 				addUser(profileA);
 				addUser(profileB);
 				// add edge
-				ArrayList<String> container = myMap.get(profileA);
+				ArrayList<Profile> container = myMap.get(profileA);
 				container.add(profileB);
 				numOfEdges++;
 				success = true;
@@ -131,7 +131,7 @@ public class Graph implements GraphADT {
 			if(myMap.containsKey(profileA)&&!myMap.containsKey(profileB)) {
 				addUser(profileB);
 				// add edge
-				ArrayList<String> container = myMap.get(profileA);
+				ArrayList<Profile> container = myMap.get(profileA);
 				container.add(profileB);
 				numOfEdges++;
 				success = true;
@@ -141,7 +141,7 @@ public class Graph implements GraphADT {
 			if(!myMap.containsKey(profileA)&&myMap.containsKey(profileB)) {
 				addUser(profileA);
 				// add edge
-				ArrayList<String> container = myMap.get(profileA);
+				ArrayList<Profile> container = myMap.get(profileA);
 				container.add(profileB);
 				numOfEdges++;
 				success = true;
@@ -156,7 +156,7 @@ public class Graph implements GraphADT {
 					}
 				// if no edge exist
 				else {
-					ArrayList<String> container = myMap.get(profileA);
+					ArrayList<Profile> container = myMap.get(profileA);
 					container.add(profileB);
 					numOfEdges++;
 					success = true;
@@ -183,7 +183,7 @@ public class Graph implements GraphADT {
 	 * @return return false if vertex doesn't exist
 	 */
 	@Override
-	public boolean removeFriend(String profileA, String profileB) {
+	public boolean removeFriend(Profile profileA, Profile profileB) {
 		boolean success = false;
 		//condition1: the vertex doesn't exist
 		if(!myMap.containsKey(profileA)||!myMap.containsKey(profileB)) {
@@ -215,7 +215,7 @@ public class Graph implements GraphADT {
 
 	@Override
 	public boolean clearNetwork() {
-		myMap =  new HashMap<String,ArrayList<String>>();
+		myMap =  new HashMap<Profile,ArrayList<Profile>>();
 		vertexList =  new ArrayList<>();
 		return true;
 		
