@@ -25,12 +25,13 @@ public class ProfileManager {
 	 * @param b
 	 * @return
 	 */
-	public List<List<Profile>> getMutualFriends(Profile profileA, Profile profileB) {
-		List<List<Profile>> listA = profileA.getListOfUsersFriends(); // holds profileA's friends
-		List<List<Profile>> listB = profileB.getListOfUsersFriends(); // holds profileB's friends
-		List<List<Profile>> common = listA; // creates temp to hold A
-		common.retainAll(listB); // compares A with B and stores common friends
-		return common;
+	public List<Profile> getMutualFriends(Profile profileA, Profile profileB) {
+//		List<Profile> listA = profileA.getListOfUsersFriends(); // holds profileA's friends
+//		List<Profile> listB = profileB.getListOfUsersFriends(); // holds profileB's friends
+//		List<Profile> common = listA; // creates temp to hold A
+//		common.retainAll(listB); // compares A with B and stores common friends
+//		return common;
+	  return null;
 	}
 
 	/**
@@ -44,5 +45,13 @@ public class ProfileManager {
 
 		return null;
 	}
+
+  public Graph getGraph() {
+    return graph;
+  }
+
+  public void setGraph(Graph graph) {
+    this.graph = graph;
+  }
 
 }
