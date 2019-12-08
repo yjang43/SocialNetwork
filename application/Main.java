@@ -290,7 +290,6 @@ public class Main extends Application {
     Button findButton = new Button("Find");
     findButton.setOnAction(e->{
       textField = userNameTextField.getText();
-      System.out.println("3: " + textField);
       setConsole(console);
       try { 
         setFriendPane(friendPane);        
@@ -329,26 +328,19 @@ public class Main extends Application {
     consoleLabel.setLayoutX(10);
     consoleLabel.setLayoutY(10);
     console.getChildren().add(consoleLabel);
-//    //get profile of userName
-//    List friendPath = pm.getShortestPath(centerUser, userName);
-//    for(int i = 0; i < friendPath.size(); i++) {
-//      friendPathStr = friendPathStr.concat(friendPath.get(i).getUserName + "->");
-//    }
-    if(userName.compareTo("a") == 0) {
-      friendPathStr = "a is your friend!!!";
-//      curFriend = getUser("a");
+    //get profile of userName
+    try {
+      List<String> friendPath = pm.getShortestPath(centerUser, pm.findProfile(userName));
+      friendPathStr = "To reach out to the user";
+      for(int i = 0; i < friendPath.size(); i++) {
+        friendPathStr = friendPathStr.concat(friendPath.get(i) + "->");
+      }      
+    } catch(Exception e) {
+      friendPathStr = "invalid input";
     }
-    // profile not found?
-    else {
-      friendPathStr = "user is not found";
-    }
+    
     consoleLabel.setText(friendPathStr);
     return friendPathStr;
-    // back end need to be done
-    /*
-     * find -> textfield -> string -> string compare -> is user here? -> ProfileManager.method List -> Profile.getName -> Systemout.println
-     *                                                           -> error -> user is not found in our data
-     */
     
   }
   

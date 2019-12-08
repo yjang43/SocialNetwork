@@ -1,4 +1,7 @@
+package application;
+
 import java.util.ArrayList;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,7 +13,7 @@ import java.util.Map;
  * @author zanzhang
  *
  */
-public class Graph implements GraphADT {
+public class Graph implements GraphADT<Profile> {
 
 	private int numOfUser = 0;
 	private int numOfEdges = 0;
@@ -179,7 +182,7 @@ public class Graph implements GraphADT {
 	 * @return return false if vertex doesn't exist
 	 */
 	@Override
-	public boolean removeFriend(Profile profileA, Profile profileB) {
+	public boolean deleteFriend(Profile profileA, Profile profileB) {
 		boolean success = false;
 		//condition1: the vertex doesn't exist
 		if(!myMap.containsKey(profileA)||!myMap.containsKey(profileB)) {
@@ -246,4 +249,6 @@ public class Graph implements GraphADT {
 		// TODO Auto-generated method stub
 
 	}
+
+
 }
