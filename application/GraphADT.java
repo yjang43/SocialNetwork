@@ -13,7 +13,5 @@ public interface GraphADT<Profile> {
 
   int order();
 
-  boolean removeFriend(Profile profileA, Profile profileB);
-
   int size();
 }
