@@ -1,5 +1,3 @@
-package application; 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +10,7 @@ import java.util.Map;
  * @author zanzhang
  *
  */
-public class Graph implements GraphADT<Profile> {
+public class Graph implements GraphADT {
 
 	private int numOfUser = 0;
 	private int numOfEdges = 0;
@@ -246,10 +244,4 @@ public class Graph implements GraphADT<Profile> {
 		// TODO Auto-generated method stub
 
 	}
-
-  @Override
-  public boolean deleteFriend(Profile user, Profile friend) {
-    // TODO Auto-generated method stub
-    return false;
-  }
 }
