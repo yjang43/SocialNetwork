@@ -10,8 +10,12 @@ public class Profile {
 	String user_Name; //user name
 	Image user_Picture;
 	boolean is_User_Center = false;
-	boolean visited;
+	boolean visited; //BFS algo in ProfileManager
 	List<Profile> list_of_user_friends; //list of users friends
+	//weight, totalWeight, and predecessor for Dijkstra's Algorithm in ProfileManager
+	int weight; //each profile friendship automatically has a weight of 1
+	int totalWeight; // total weight
+	Profile predecessor; // profile's predecessor
   
 	/**
 	* Constructor to set users name and create a list of users friends
@@ -20,6 +24,9 @@ public class Profile {
 	public Profile(String userName) {
 		this.user_Name = userName;
 		this.list_of_user_friends = new LinkedList<Profile>();
+		this.weight = 1; // each individual profile has a weight of 1
+		this.totalWeight = 1000; // each has a total weight of 1000 to start
+		this.predecessor = null;
 		try {
 		  
 		  this.user_Picture = new Image(new FileInputStream("application/bucky.png"));
