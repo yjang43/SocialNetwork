@@ -25,9 +25,7 @@ public class Graph implements GraphADT<Profile> {
 	 */ 
 	public Graph() {
 		vertexList = new ArrayList<>();
-		
 	    myMap = new HashMap<Profile,ArrayList<Profile>>(); 
-
 	}
 	
     /**
@@ -219,6 +217,10 @@ public class Graph implements GraphADT<Profile> {
 		vertexList =  new ArrayList<>();
 		return true;
 		
+	}
+	
+	public ArrayList<Profile> getVertexList() {
+		return vertexList;
 	}
 
 	/**
