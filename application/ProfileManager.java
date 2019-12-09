@@ -38,9 +38,9 @@ public class ProfileManager {
 				profile = list.get(i);
 				break;
 			}
-			if(profile == null)
-				throw new Exception("Profile not found");
 		}
+		if(profile == null)
+		  throw new Exception("Profile not found");
 		return profile;
 	}
 	/**

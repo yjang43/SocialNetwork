@@ -65,7 +65,7 @@ public class Main extends Application {
   double origCanvasTransX = 0;
   double origCanvasTransY;
   
-  Profile centerUser = new Profile("default");
+  Profile centerUser = null;
   Profile curFriend = null;
   
   String textField = "type down user name...";
@@ -160,8 +160,10 @@ public class Main extends Application {
       addFriendEventHandler(profileGUI.get(i), canvas, centerUser.getListOfUsersFriends().get(i), centerUser);
       profileGUI.get(i).setFitHeight(64);
       profileGUI.get(i).setPreserveRatio(true);
-      profileGUI.get(i).setLayoutX(profileGUI.get(i).hashCode() % width);
-      profileGUI.get(i).setLayoutY(profileGUI.get(i).hashCode()/width % height);
+      profileGUI.get(i).positionX = profileGUI.get(i).hashCode() % width - 32;
+      profileGUI.get(i).setLayoutX(profileGUI.get(i).positionX);
+      profileGUI.get(i).positionY = profileGUI.get(i).hashCode()/width % height - 32;
+      profileGUI.get(i).setLayoutY(profileGUI.get(i).positionY);
       Line line = new Line(centerBucky.getLayoutX()+64, centerBucky.getLayoutY()+64, profileGUI.get(i).getLayoutX()+32, profileGUI.get(i).getLayoutY()+32);
       line.setStrokeWidth(3);
       canvas.getChildren().addAll(line, profileGUI.get(i));
@@ -220,15 +222,28 @@ public class Main extends Application {
     });
   }
   
+  private ProfileGUI findProfileGUI(Profile friend) {
+    for(int i = 0; i < profileGUI.size(); i++) {
+      if(profileGUI.get(i).getProfile().equals(friend)) {
+        return profileGUI.get(i);
+      }
+    }
+    return null;
+  }
+  
   private Group mutualFriend(Profile friend, Profile centerUser) {
     Group lineGroup = new Group();
     List<Profile> mutualFriendList = pm.getMutualFriends(friend, centerUser);
     if(mutualFriendList == null) {
       return lineGroup;
     }
-    for(int i = 0; i < mutualFriendList.size(); i++) {
-      ////////////////////////////////////////////////////////////////////////////////////////////
-      // create line 
+    ProfileGUI friendGUI = findProfileGUI(friend);
+    for (int i = 0; i < mutualFriendList.size(); i++) {
+      ProfileGUI mutualFriendGUI = findProfileGUI(mutualFriendList.get(i));
+      Line line = new Line(friendGUI.positionX + 32, friendGUI.positionY + 32, mutualFriendGUI.positionX + 32,
+          mutualFriendGUI.positionY + 32);
+      line.setStrokeWidth(3);
+      lineGroup.getChildren().add(line);
     }
     return lineGroup;
   }
@@ -330,13 +345,16 @@ public class Main extends Application {
     console.getChildren().add(consoleLabel);
     //get profile of userName
     try {
+      System.out.println(centerUser.user_Name);
+      System.out.println(pm.findProfile(userName).user_Name);
       List<String> friendPath = pm.getShortestPath(centerUser, pm.findProfile(userName));
       friendPathStr = "To reach out to the user";
       for(int i = 0; i < friendPath.size(); i++) {
         friendPathStr = friendPathStr.concat(friendPath.get(i) + "->");
-      }      
+      }
     } catch(Exception e) {
       friendPathStr = "invalid input";
+      System.out.println("error");
     }
     
     consoleLabel.setText(friendPathStr);
@@ -359,6 +377,9 @@ public class Main extends Application {
   
   private void setFriendPane(Pane friendPane) throws FileNotFoundException {
     friendPane.getChildren().clear();
+    if(curFriend == null) {
+      return;
+    }
     ImageView friendImage =
         new ImageView(curFriend.user_Picture);
     friendImage.setFitWidth(50);
@@ -540,13 +561,26 @@ public class Main extends Application {
      *        -> friendButton
      *        -> unfriendButton
      */
+    centerUser = new Profile("default");
     Profile a = new Profile("a");
     Profile b = new Profile("b");
-    b.list_of_user_friends.add(centerUser);
-    a.list_of_user_friends.add(centerUser);
-    centerUser.list_of_user_friends.add(a);
-    centerUser.list_of_user_friends.add(b);
-    curFriend = a;
+    pm.getGraph().addFriend(centerUser, a);
+    pm.getGraph().addFriend(centerUser, b);
+//    b.list_of_user_friends.add(centerUser);
+//    a.list_of_user_friends.add(centerUser);
+//    centerUser.list_of_user_friends.add(a);
+//    centerUser.list_of_user_friends.add(b);
+    pm.getGraph().addFriend(a, b);
+    try {
+      for(int i= 0; i < pm.getGraph().getVertexList().size(); i++) {
+        System.out.println(pm.getGraph().getVertexList().get(i).getUserName());              
+      }
+      System.out.println(pm.findProfile("a"));
+    } catch(Exception e) {
+      System.out.println(e);
+    }
+//    b.list_of_user_friends.add(a);
+//    a.list_of_user_friends.add(b);
     
     canvas = createCanvas();
     canvasPane = createCanvasPane(canvas);
