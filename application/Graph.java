@@ -80,6 +80,12 @@ public class Graph implements GraphADT<Profile> {
 
 		else {
 			myMap.remove(profile);
+			vertexList.remove(profile);
+			//iterates through vertex list and removes user from other profile's friend list
+			for (int i = 0; i < vertexList.size(); i++) {
+				if (vertexList.get(i).list_of_user_friends.contains(profile))
+					vertexList.get(i).list_of_user_friends.remove(profile);
+			}
 			numOfUser--;
 			return true;
 		}
