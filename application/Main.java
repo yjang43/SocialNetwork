@@ -242,6 +242,8 @@ public class Main extends Application {
       ProfileGUI mutualFriendGUI = findProfileGUI(mutualFriendList.get(i));
       Line line = new Line(friendGUI.positionX + 32, friendGUI.positionY + 32, mutualFriendGUI.positionX + 32,
           mutualFriendGUI.positionY + 32);
+      line.getStrokeDashArray().addAll(20.0,20.0,20.0,20.0);
+      line.setStroke(Color.GRAY);
       line.setStrokeWidth(3);
       lineGroup.getChildren().add(line);
     }
@@ -338,7 +340,7 @@ public class Main extends Application {
     String userName = textField;
     String friendPathStr = "";
     Label consoleLabel = new Label();
-    consoleLabel.setStyle("-fx-font-size: 15pt;"
+    consoleLabel.setStyle("-fx-font-size: 13pt;"
         + "-fx-text-fill: black;");
     consoleLabel.setLayoutX(10);
     consoleLabel.setLayoutY(10);
@@ -348,10 +350,12 @@ public class Main extends Application {
       System.out.println(centerUser.user_Name);
       System.out.println(pm.findProfile(userName).user_Name);
       List<String> friendPath = pm.getShortestPath(centerUser, pm.findProfile(userName));
-      friendPathStr = "To reach out to the user";
-      for(int i = 0; i < friendPath.size(); i++) {
+      friendPathStr = "Path: ";
+      int i;
+      for(i = 0; i < friendPath.size() - 1; i++) {
         friendPathStr = friendPathStr.concat(friendPath.get(i) + "->");
       }
+      friendPathStr = friendPathStr.concat(friendPath.get(i));
     } catch(Exception e) {
       friendPathStr = "invalid input";
       System.out.println("error");
@@ -566,21 +570,8 @@ public class Main extends Application {
     Profile b = new Profile("b");
     pm.getGraph().addFriend(centerUser, a);
     pm.getGraph().addFriend(centerUser, b);
-//    b.list_of_user_friends.add(centerUser);
-//    a.list_of_user_friends.add(centerUser);
-//    centerUser.list_of_user_friends.add(a);
-//    centerUser.list_of_user_friends.add(b);
     pm.getGraph().addFriend(a, b);
-    try {
-      for(int i= 0; i < pm.getGraph().getVertexList().size(); i++) {
-        System.out.println(pm.getGraph().getVertexList().get(i).getUserName());              
-      }
-      System.out.println(pm.findProfile("a"));
-    } catch(Exception e) {
-      System.out.println(e);
-    }
-//    b.list_of_user_friends.add(a);
-//    a.list_of_user_friends.add(b);
+
     
     canvas = createCanvas();
     canvasPane = createCanvasPane(canvas);
@@ -588,11 +579,6 @@ public class Main extends Application {
     userFindPane = createUserFindPane();
     console = createConsole();
     linkPane = createLinkPane();
-    
-
-    // create test profile
-    Profile test = new Profile("john");
-    Profile testFriend = new Profile("mark");
     friendPane = createFriendPane();
 
     updateScene(primaryStage);
