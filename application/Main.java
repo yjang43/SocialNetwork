@@ -19,7 +19,10 @@ import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -65,7 +68,7 @@ public class Main extends Application {
   double origCanvasTransX = 0;
   double origCanvasTransY;
   
-  Profile centerUser = null;
+  public static Profile centerUser = null;
   Profile curFriend = null;
   
   String textField = "type down user name...";
@@ -131,8 +134,16 @@ public class Main extends Application {
   
   private void setCenterUser(Pane canvas) throws FileNotFoundException{
     canvas.getChildren().clear();
+    profileGUI.clear();
     double height = 480;
     double width = 480;
+    if(centerUser == null) {
+      Label centerUserError = new Label("need to set center user");
+      centerUserError.setLayoutX(width/2 - 50);
+      centerUserError.setLayoutY(height/2);
+      canvas.getChildren().add(centerUserError);
+      return;
+    }
     for(int i = 0; i < centerUser.getListOfUsersFriends().size(); i++) {
       profileGUI.add(new ProfileGUI(centerUser.getListOfUsersFriends().get(i)));
     }
@@ -267,6 +278,15 @@ public class Main extends Application {
   
   private void setCenterUserPane(Pane centerUserPane) throws FileNotFoundException{
     centerUserPane.getChildren().clear();
+    
+    if(centerUser == null) {
+      Label centerUserError = new Label("need to set center user");
+      centerUserError.setLayoutX(centerUserPane.getPrefWidth()/2 - 50);
+      centerUserError.setLayoutY(centerUserPane.getPrefHeight()/2);
+      centerUserPane.getChildren().add(centerUserError);
+      return;
+    }
+    
     Image centerUserImage = centerUser.user_Picture;
     String userName = centerUser.user_Name;
 
@@ -309,8 +329,9 @@ public class Main extends Application {
       textField = userNameTextField.getText();
       setConsole(console);
       try { 
+        curFriend = pm.findProfile(textField);
         setFriendPane(friendPane);        
-      } catch(FileNotFoundException f) {
+      } catch(Exception f) {
         
       }
     });
@@ -402,7 +423,7 @@ public class Main extends Application {
     addButton.setLayoutX(10);
     addButton.setLayoutY(80);
     addButton.setOnAction(e -> {
-//      pm.getGraph().addFriend(profileA, profileB);
+      pm.getGraph().addFriend(centerUser, curFriend);
       try {
         setCenterUser(canvas);
       } catch(FileNotFoundException f) {
@@ -416,7 +437,7 @@ public class Main extends Application {
     removeButton.setLayoutX(120);
     removeButton.setLayoutY(80);
     removeButton.setOnAction(e -> {
-//    pm.getGraph().removeFriend(profileA, profileB);
+    pm.getGraph().deleteFriend(centerUser, curFriend);
     try {
       setCenterUser(canvas);
     } catch(FileNotFoundException f) {
@@ -476,7 +497,14 @@ public class Main extends Application {
         if (result.isPresent()) {
           path = result.get();
         }
-        FileControl.writeLog(path);
+        FileControl.setProfile_manager(pm);
+        FileControl.constructGraph(path);
+        try {
+          setCenterUser(canvas);
+          setCenterUserPane(centerUserPane);          
+        } catch(FileNotFoundException f) {
+          
+        }
       }  
     });
     Button save = new Button("Save");
@@ -492,15 +520,74 @@ public class Main extends Application {
         if (result.isPresent()) {
           path= result.get();
         }
+        FileControl.setProfile_manager(pm);
         FileControl.writeLog(path);
+        try {
+          setCenterUser(canvas);
+          setCenterUserPane(centerUserPane);          
+        } catch(FileNotFoundException f) {
+          
+        }
       }  
     });
+
+    Button signUp = new Button("Sign Up");
+    signUp.setLayoutX(110);
+    signUp.setOnAction(new EventHandler<ActionEvent>() {
+      @Override
+      public void handle(ActionEvent arg0) {
+        String userName = "";
+        TextInputDialog popup = new TextInputDialog("userName");
+        popup.setHeaderText("what is your user name");
+        Optional<String> result = popup.showAndWait();
+        if (result.isPresent()) {
+          try {
+            for (int i = 0; i < pm.getGraph().getVertexList().size(); i++) {
+              System.out.println(pm.getGraph().getVertexList().get(i).user_Name);
+            }
+            userName = result.get();
+            Profile userProfile = pm.findProfile(userName);
+            Alert popup2 = new Alert(AlertType.NONE, "logining in as... " + userName);
+            popup2.getDialogPane().setPrefSize(200, 100);
+            popup2.getDialogPane().getButtonTypes().add(ButtonType.OK);
+            popup2.show();
+            if (centerUser == null) {
+              centerUser = userProfile;
+              FileControl.setLog("s " + userName);
+              setCenterUser(canvas);
+              setCenterUserPane(centerUserPane);
+            }
+          } catch (Exception e) {
+            userName = result.get();
+            Alert popup2 = new Alert(AlertType.NONE, "Welcome, " + userName);
+            popup2.getDialogPane().setPrefSize(200, 100);
+            popup2.getDialogPane().getButtonTypes().add(ButtonType.OK);
+            popup2.show();
+            Profile userProfile = new Profile(userName);
+            pm.getGraph().addUser(userProfile);
+            FileControl.setLog("a " + userName);
+            if (centerUser == null) {
+              centerUser = userProfile;
+              FileControl.setLog("s " + userName);
+              try {
+                setCenterUser(canvas);
+                setCenterUserPane(centerUserPane);
+              } catch(Exception k) {
+                
+              }
+            }
+          }
+        }
+      }  
+    });
+    
+    
     
     ImageView gitHub =  
         new ImageView(new Image(new FileInputStream("application/GitHub.png"), 30, 30, true, true));
     addLinkEventHandler(gitHub, "https://github.com");
     gitHub.setLayoutX(260);
-    linkPane.getChildren().addAll(load, save, gitHub);
+    linkPane.getChildren().addAll(load, save, signUp, gitHub);
     return linkPane;
   }
 
@@ -565,13 +652,12 @@ public class Main extends Application {
      *        -> friendButton
      *        -> unfriendButton
      */
-    centerUser = new Profile("default");
-    Profile a = new Profile("a");
-    Profile b = new Profile("b");
-    pm.getGraph().addFriend(centerUser, a);
-    pm.getGraph().addFriend(centerUser, b);
-    pm.getGraph().addFriend(a, b);
-
+//    centerUser = new Profile("default");
+//    Profile a = new Profile("a");
+//    Profile b = new Profile("b");
+//    pm.getGraph().addFriend(centerUser, a);
+//    pm.getGraph().addFriend(centerUser, b);
+//    pm.getGraph().addFriend(a, b);
     
     canvas = createCanvas();
     canvasPane = createCanvasPane(canvas);
@@ -580,7 +666,7 @@ public class Main extends Application {
     console = createConsole();
     linkPane = createLinkPane();
     friendPane = createFriendPane();
-
+    
     updateScene(primaryStage);
   }
 

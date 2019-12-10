@@ -69,10 +69,11 @@ public class FileControl {
 	    //add user
 	    if (instructionSet[operator].compareTo("a") == 0 && instructionSet[operand2] == null) {
 	    	//
+	      Profile first_user_profile ;
 	    	try {
-	    		Profile first_user_profile = profile_manager.findProfile(instructionSet[operand1]);
+	    		first_user_profile = profile_manager.findProfile(instructionSet[operand1]);
 	    	}catch(Exception E) {
-	    		Profile first_user_profile = new Profile(instructionSet[operand1]);
+	    		first_user_profile = new Profile(instructionSet[operand1]);
 	    		//FileControl.graph.addUser(first_user_profile);
 	    		graph.addUser(first_user_profile);
 	    	}
@@ -134,6 +135,7 @@ public class FileControl {
 	    	try {
 	    		Profile set_user_center = profile_manager.findProfile(instructionSet[operand1]);
 	    		set_user_center.setUserCenter(true);
+	    		Main.centerUser = set_user_center;
 	    	}catch(Exception E) {
 	    	}
 	
@@ -158,6 +160,30 @@ public class FileControl {
 	      
 	    }
 	  }
+
+	/**
+	 * get log
+	 * @return log
+	 */
+	public static String getLog() {
+      return log;
+    }
+
+	/**
+	 * concat commnad to log 
+	 * @param log
+	 */
+    public static void setLog(String command) {
+      FileControl.log = FileControl.log.concat(command + '\r');
+    }
+
+  /**
+	 * set profileManager from other class
+	 * @param profile_manager
+	 */
+    public static void setProfile_manager(ProfileManager profile_manager) {
+      FileControl.profile_manager = profile_manager;
+    }
 
 //  public static void main(String args[]) {
 //    String userDir = System.getProperty("user.dir");
