@@ -22,11 +22,7 @@ import java.util.Scanner;
 
 public class FileControl {
 	 private static String log = "";
-	 private static Graph graph = new Graph();
-	 private static ArrayList<String> list_of_friends_and_users = new ArrayList<String>();
-	 private static List<Profile> list_of_profiles = new ArrayList<Profile>();
-	 private static Profile first_user_profile;
-	 private static Profile second_user_profile;
+	 private static ProfileManager profile_manager = new ProfileManager();
 
 	 /**
 	 * Constructs a graph object based on input text file
@@ -41,7 +37,7 @@ public class FileControl {
 	          String instruction = scn.nextLine();
 	          System.out.println(instruction);
 	          log = log.concat(instruction + '\r');
-	          translateInstruction(graph, instruction);
+	          translateInstruction(FileControl.profile_manager.getGraph(), instruction);
 	        }
 	        scn.close();
 	      } catch (FileNotFoundException e) {
@@ -73,10 +69,12 @@ public class FileControl {
 	    //add user
 	    if (instructionSet[operator].compareTo("a") == 0 && instructionSet[operand2] == null) {
 	    	//
-	    	if (!list_of_friends_and_users.contains(instructionSet[operand1])) {
-	    		//
-	        	FileControl.graph.addUser(new Profile(instructionSet[operand1]));
-	        	list_of_friends_and_users.add(instructionSet[operand1]);
+	    	try {
+	    		Profile first_user_profile = profile_manager.findProfile(instructionSet[operand1]);
+	    	}catch(Exception E) {
+	    		Profile first_user_profile = new Profile(instructionSet[operand1]);
+	    		//FileControl.graph.addUser(first_user_profile);
+	    		graph.addUser(first_user_profile);
 	    	}
 	    	
 	        return;
@@ -84,56 +82,33 @@ public class FileControl {
 	
 	    //add relationship
 	    if (instructionSet[operator].compareTo("a") == 0 && instructionSet[operand2] != null) {
+	    	Profile first_user_profile, second_user_profile;
 	    	//if first user is already in network get user from network to add relation ship, else create new user
-	    	if (list_of_friends_and_users.contains(instructionSet[operand1])) {
-	    		list_of_profiles = FileControl.graph.getVertexList();
-	    		Iterator<Profile> iterate = list_of_profiles.iterator();
-	            while (iterate.hasNext()) {
-	                first_user_profile = iterate.next();
-	                if (first_user_profile.getUserName().equals(instructionSet[operand1])) {
-	                    break;
-	                }
-	            }
-	    	}else {
+	    	//
+	    	try {
+	    		first_user_profile = profile_manager.findProfile(instructionSet[operand1]);
+	    	}catch(Exception E) {
 	    		first_user_profile = new Profile(instructionSet[operand1]);
-	    		list_of_friends_and_users.add(instructionSet[operand1]);
 	    	}
-	    	//if second user is already in network get user from network to add relation ship, else create new user
-	    	if (list_of_friends_and_users.contains(instructionSet[operand2])) {
-	    		list_of_profiles = FileControl.graph.getVertexList();
-	    		Iterator<Profile> iterate = list_of_profiles.iterator();
-	            while (iterate.hasNext()) {
-	                second_user_profile = iterate.next();
-	                if (second_user_profile.getUserName().equals(instructionSet[operand2])) {
-	                    break;
-	                }
-	            }
-	    	}else {
+	    	
+	    	try {
+	    		second_user_profile = profile_manager.findProfile(instructionSet[operand2]);
+	    	}catch(Exception E) {
 	    		second_user_profile = new Profile(instructionSet[operand2]);
-	    		list_of_friends_and_users.add(instructionSet[operand2]);
 	    	}
+	    	
 	        //add relationship
-	    	FileControl.graph.addFriend(first_user_profile, second_user_profile);
+	    	graph.addFriend(first_user_profile, second_user_profile);
 	    	
 	      return;
 	    }
 	
 	    //remove user
 	    if (instructionSet[operator].compareTo("r") == 0 && instructionSet[operand2] == null) {
-	    	Profile user_profile = null;
-	    	//if user is already in network get user from network and remove user
-	    	if (list_of_friends_and_users.contains(instructionSet[operand1])) {
-	    		list_of_profiles = FileControl.graph.getVertexList();
-	    		Iterator<Profile> iterate = list_of_profiles.iterator();
-	            while (iterate.hasNext()) {
-	                user_profile = iterate.next();
-	                if (user_profile.getUserName().equals(instructionSet[operand1])) {
-	                    break;
-	                }
-	            }
-	    		//
-	        	FileControl.graph.deleteUser(user_profile);
-	        	list_of_friends_and_users.remove(instructionSet[operand1]);
+	    	try {
+	    		Profile remove_profile = profile_manager.findProfile(instructionSet[operand1]);
+	    		graph.deleteUser(remove_profile);
+	    	}catch(Exception E) {
 	    	}
 	    	
 	      return;
@@ -141,29 +116,12 @@ public class FileControl {
 	
 	    //remove relationship
 	    if (instructionSet[operator].compareTo("r") == 0 && instructionSet[operand2] != null) {
-	    	
-	    	Profile first_user_profile = null;
-	    	Profile second_user_profile = null;
 	    	////if relationship is already in network get users and remove relationship
-	    	if (list_of_friends_and_users.contains(instructionSet[operand1]) && list_of_friends_and_users.contains(instructionSet[operand2])) {
-	    		list_of_profiles = FileControl.graph.getVertexList();
-	    		Iterator<Profile> first_iterate = list_of_profiles.iterator();
-	            while (first_iterate.hasNext()) {
-	            	first_user_profile = first_iterate.next();
-	                if (first_user_profile.getUserName().equals(instructionSet[operand1])) {
-	                    break;
-	                }
-	            }
-	            
-	            Iterator<Profile> second_iterate = list_of_profiles.iterator();
-	            while (second_iterate.hasNext()) {
-	            	second_user_profile = second_iterate.next();
-	                if (second_user_profile.getUserName().equals(instructionSet[operand2])) {
-	                    break;
-	                }
-	            }
-	    		//Remove relationship
-	        	FileControl.graph.deleteFriend(first_user_profile, second_user_profile);
+	    	try {
+	    		Profile first_user_profile = profile_manager.findProfile(instructionSet[operand1]);
+	    		Profile second_user_profile = profile_manager.findProfile(instructionSet[operand2]);
+	    		graph.deleteFriend(first_user_profile, second_user_profile);
+	    	}catch(Exception E) {
 	    	}
 	
 	      return;
@@ -172,19 +130,11 @@ public class FileControl {
 	    // set center user
 	    if (instructionSet[operator].compareTo("s") == 0 && instructionSet[operand2] == null) {
 	    	
-	    	Profile set_user_center = null;
 	    	//if user is already in network get user from network and set user to center
-	    	if (list_of_friends_and_users.contains(instructionSet[operand1])) {
-	    		list_of_profiles = FileControl.graph.getVertexList();
-	    		Iterator<Profile> iterate = list_of_profiles.iterator();
-	            while (iterate.hasNext()) {
-	            	set_user_center = iterate.next();
-	                if (set_user_center.getUserName().equals(instructionSet[operand1])) {
-	                    break;
-	                }
-	            }
-	    		//
-	            set_user_center.is_User_Center = true;
+	    	try {
+	    		Profile set_user_center = profile_manager.findProfile(instructionSet[operand1]);
+	    		set_user_center.setUserCenter(true);
+	    	}catch(Exception E) {
 	    	}
 	
 	      return;
