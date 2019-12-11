@@ -56,6 +56,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import java.awt.Desktop;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -73,6 +74,7 @@ public class Main extends Application {
   
   String textField = "type down user name...";
   String labelText = "console";
+  String consoleOutput = "";
   
   Pane canvas;
   Pane canvasPane;
@@ -135,6 +137,12 @@ public class Main extends Application {
   private void setCenterUser(Pane canvas) throws FileNotFoundException{
     canvas.getChildren().clear();
     profileGUI.clear();
+    Label graphStatus = new Label(
+        "# of users:" + pm.getGraph().order() +
+        "\r# of size: " + pm.getGraph().size() +
+        "\r# of connected components"
+        );
+    graphStatus.setLayoutX(300);
     double height = 480;
     double width = 480;
     if(centerUser == null) {
@@ -183,7 +191,7 @@ public class Main extends Application {
     // create instance for each friend and add to the canvas in a location
     
     
-    canvas.getChildren().add(centerBucky);
+    canvas.getChildren().addAll(centerBucky, graphStatus);
   }
   
   private void addFriendEventHandler(ImageView friend, Pane canvas, Profile friendProfile, Profile centerUserProfile){
@@ -224,6 +232,7 @@ public class Main extends Application {
             profileGUI.clear();
             System.out.println(centerUser.user_Name);
             setCenterUser(canvas);            
+            FileControl.setLog("s " + centerUser.getUserName());
             setCenterUserPane(centerUserPane);
           } catch(FileNotFoundException f) {
             System.out.println("this code is unreachable");
@@ -299,13 +308,12 @@ public class Main extends Application {
     
     Label userNameLabel = new Label(userName);
     userNameLabel.setStyle("-fx-font-size: 15pt;"
-        + "-fx-text-fill: black;");
+        + "-fx-text-fill: white;");
     userNameLabel.setLayoutX(150);
     userNameLabel.setLayoutY(10);
-    
-    Text userBioText = new Text(userBio);
-//    userBioText.setStyle("-fx-font-size: 15pt;"
-//        + "-fx-text-fill: white;");
+
+    Text userBioText = new Text(
+        userBio + "\rThis dude has " + centerUser.list_of_user_friends.size() + " friends\rpathetic");
     userBioText.setLayoutX(150);
     userBioText.setLayoutY(50);
     
@@ -327,6 +335,25 @@ public class Main extends Application {
     Button findButton = new Button("Find");
     findButton.setOnAction(e->{
       textField = userNameTextField.getText();
+      try {
+        curFriend = pm.findProfile(textField);
+        List<String> friendPath = pm.getShortestPath(centerUser, pm.findProfile(textField));
+        String friendPathStr = "Path: ";
+        int i;
+        for(i = 0; i < friendPath.size() - 1; i++) {
+          friendPathStr = friendPathStr.concat(friendPath.get(i) + "->");
+        }
+        friendPathStr = friendPathStr.concat(friendPath.get(i));
+        consoleOutput = friendPathStr;
+      } catch(Exception f) {
+        consoleOutput = textField + " is not your friend";
+        try {
+          pm.findProfile(textField);
+        } catch(Exception k) {
+          consoleOutput = "user " + textField + " does not exist";
+        }
+        System.out.println("error");
+      }
       setConsole(console);
       try { 
         curFriend = pm.findProfile(textField);
@@ -358,7 +385,6 @@ public class Main extends Application {
   
   private String setConsole(Pane console) {
     console.getChildren().clear();
-    String userName = textField;
     String friendPathStr = "";
     Label consoleLabel = new Label();
     consoleLabel.setStyle("-fx-font-size: 13pt;"
@@ -366,23 +392,8 @@ public class Main extends Application {
     consoleLabel.setLayoutX(10);
     consoleLabel.setLayoutY(10);
     console.getChildren().add(consoleLabel);
-    //get profile of userName
-    try {
-      System.out.println(centerUser.user_Name);
-      System.out.println(pm.findProfile(userName).user_Name);
-      List<String> friendPath = pm.getShortestPath(centerUser, pm.findProfile(userName));
-      friendPathStr = "Path: ";
-      int i;
-      for(i = 0; i < friendPath.size() - 1; i++) {
-        friendPathStr = friendPathStr.concat(friendPath.get(i) + "->");
-      }
-      friendPathStr = friendPathStr.concat(friendPath.get(i));
-    } catch(Exception e) {
-      friendPathStr = "invalid input";
-      System.out.println("error");
-    }
     
-    consoleLabel.setText(friendPathStr);
+    consoleLabel.setText(consoleOutput);
     return friendPathStr;
     
   }
@@ -424,11 +435,16 @@ public class Main extends Application {
     addButton.setLayoutY(80);
     addButton.setOnAction(e -> {
       pm.getGraph().addFriend(centerUser, curFriend);
+      FileControl.setLog("a " + centerUser.getUserName() + " " + curFriend.getUserName());
       try {
+        consoleOutput = centerUser.getUserName() + " is now a friend with " + curFriend.getUserName();
+        setConsole(console);
         setCenterUser(canvas);
+        setCenterUserPane(centerUserPane);
       } catch(FileNotFoundException f) {
         
       }
+      
     });
     
     // remove after A2 and ADD button to toggle back and forth to remove
@@ -437,12 +453,46 @@ public class Main extends Application {
     removeButton.setLayoutX(120);
     removeButton.setLayoutY(80);
     removeButton.setOnAction(e -> {
-    pm.getGraph().deleteFriend(centerUser, curFriend);
-    try {
-      setCenterUser(canvas);
-    } catch(FileNotFoundException f) {
       
-    }
+      boolean isFriend = false;
+      for(int i = 0; i < centerUser.list_of_user_friends.size(); i++) {
+        try {
+          if(pm.findProfile(textField) == centerUser.list_of_user_friends.get(i)) {
+            isFriend = true;
+            break;
+          }          
+        } catch(Exception f) {
+          System.out.println("user must be found here");
+        }
+      }
+      
+      if(isFriend) {
+        pm.getGraph().deleteFriend(centerUser, curFriend);
+        FileControl.setLog("r " + centerUser.getUserName() + " " + curFriend.getUserName());
+        try {
+          consoleOutput = centerUser.getUserName() + " is no mo friend with " + curFriend.getUserName();
+          setConsole(console);
+          setCenterUser(canvas);
+          setCenterUserPane(centerUserPane);
+        } catch (FileNotFoundException f) {
+          
+        }        
+      }
+      else {
+        pm.getGraph().deleteUser(curFriend);
+        FileControl.setLog("r " + curFriend.getUserName());
+        try {
+          consoleOutput = curFriend.getUserName() + " deleted an account";
+          curFriend = null;
+          setConsole(console);
+          setCenterUser(canvas);
+          setCenterUserPane(centerUserPane);
+          setFriendPane(friendPane);
+        } catch (FileNotFoundException f) {
+          
+        }
+      }
+      
     });
     
     HBox links = createSnsLinkPane();
@@ -498,8 +548,14 @@ public class Main extends Application {
           path = result.get();
         }
         FileControl.setProfile_manager(pm);
-        FileControl.constructGraph(path);
         try {
+          FileControl.constructGraph(path);          
+          consoleOutput = "succesfully loaded the file " + path;
+        } catch(FileNotFoundException f) {
+          consoleOutput = "file load error: " + path;
+        }
+        try {
+          setConsole(console);
           setCenterUser(canvas);
           setCenterUserPane(centerUserPane);          
         } catch(FileNotFoundException f) {
@@ -521,8 +577,14 @@ public class Main extends Application {
           path= result.get();
         }
         FileControl.setProfile_manager(pm);
-        FileControl.writeLog(path);
         try {
+          FileControl.writeLog(path);
+          consoleOutput = "succesfully saved the file" + path;
+        } catch(IOException f) {
+          consoleOutput = "file save error: " + path;
+        }
+        try {
+          setConsole(console);
           setCenterUser(canvas);
           setCenterUserPane(centerUserPane);          
         } catch(FileNotFoundException f) {
@@ -542,9 +604,6 @@ public class Main extends Application {
         Optional<String> result = popup.showAndWait();
         if (result.isPresent()) {
           try {
-            for (int i = 0; i < pm.getGraph().getVertexList().size(); i++) {
-              System.out.println(pm.getGraph().getVertexList().get(i).user_Name);
-            }
             userName = result.get();
             Profile userProfile = pm.findProfile(userName);
             Alert popup2 = new Alert(AlertType.NONE, "logining in as... " + userName);
@@ -554,8 +613,6 @@ public class Main extends Application {
             if (centerUser == null) {
               centerUser = userProfile;
               FileControl.setLog("s " + userName);
-              setCenterUser(canvas);
-              setCenterUserPane(centerUserPane);
             }
           } catch (Exception e) {
             userName = result.get();
@@ -577,6 +634,14 @@ public class Main extends Application {
               }
             }
           }
+          consoleOutput = "user " + userName + " is successfully added";
+          setConsole(console);
+        }
+        try {
+          setCenterUser(canvas);
+          setCenterUserPane(centerUserPane);          
+        } catch(Exception e) {
+          
         }
       }  
     });
@@ -668,6 +733,41 @@ public class Main extends Application {
     friendPane = createFriendPane();
     
     updateScene(primaryStage);
+    
+    primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+      @Override
+      public void handle(WindowEvent arg0) {
+        Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle("save");
+        alert.setHeaderText("save or die");
+        alert.setContentText("save?");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK){
+          String path = "";
+          TextInputDialog popup = new TextInputDialog("path...");
+          popup.setHeaderText("write down path for save");
+          Optional<String> result2 = popup.showAndWait();
+          if (result.isPresent()) {
+            path= result2.get();
+          }
+          FileControl.setProfile_manager(pm);
+          try {
+            FileControl.writeLog(path);            
+          } catch(Exception e) {
+            
+          }
+          try {
+            setCenterUser(canvas);
+            setCenterUserPane(centerUserPane);          
+          } catch(FileNotFoundException f) {
+            
+          }          
+        } else {
+          
+        }
+      }
+      });
   }
 
   public static void main(String[] args) {
@@ -725,5 +825,3 @@ class ProfileGUI extends ImageView {
     super.setPreserveRatio(true);
   }
 }
-
-
