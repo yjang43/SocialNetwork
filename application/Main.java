@@ -491,7 +491,7 @@ public class Main extends Application {
     
     // create label to output status and set its attribute
     Label consoleLabel = new Label();
-    consoleLabel.setStyle("-fx-font-size: 13pt;" + "-fx-text-fill: black;");
+    consoleLabel.setStyle("-fx-font-size: 13pt;" + "-fx-text-fill: white;");
     consoleLabel.setLayoutX(10);
     consoleLabel.setLayoutY(10);
     console.getChildren().add(consoleLabel);
@@ -541,7 +541,7 @@ public class Main extends Application {
     friendImage.setLayoutX(10);
     friendImage.setLayoutY(10);
     Label name = new Label(curFriend.user_Name);
-    name.setStyle("-fx-font-size: 15pt;" + "-fx-text-fill: black;");
+    name.setStyle("-fx-font-size: 15pt;" + "-fx-text-fill: white;");
     name.setLayoutX(100);
     name.setLayoutY(2);
     HBox links = createSnsLinkPane();
@@ -766,9 +766,12 @@ public class Main extends Application {
       @Override
       public void handle(ActionEvent e) {
         List<Profile> list = pm.getGraph().getVertexList();
-        for(int i = 0; i < list.size(); i++) {
-          pm.getGraph().deleteUser(list.get(i));
+        int size = list.size();
+        for(int i = 0; i < size; i++) {
           FileControl.setLog("r " + list.get(i).getUserName());
+        }
+        for(int i = 0; i < size; i++) {
+          pm.getGraph().deleteUser(list.get(0));
         }
         centerUser = null;
         try {
