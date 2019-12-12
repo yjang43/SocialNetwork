@@ -177,6 +177,10 @@ public class Main extends Application {
     double height = 480;
     double width = 480;
     
+    // clear canvas before add update components
+    canvas.getChildren().clear();
+    profileGUI.clear();
+    
     // set error status if centerUser is null
     if (centerUser == null) {
       Label centerUserError = new Label("need to set center user");
@@ -185,10 +189,6 @@ public class Main extends Application {
       canvas.getChildren().add(centerUserError);
       return;
     }
-    
-    // clear canvas before add update components
-    canvas.getChildren().clear();
-    profileGUI.clear();
     
     
     // set size of a canvas depending on the number of friend
@@ -655,7 +655,7 @@ public class Main extends Application {
         FileControl.setProfile_manager(pm);
         try {
           FileControl.constructGraph(path);
-          consoleOutput = "succesfully loaded the file " + path;
+          consoleOutput = "succesfully loaded the file: " + path;
         } catch (FileNotFoundException f) {
           consoleOutput = "file load error: " + path;
         }
@@ -688,7 +688,7 @@ public class Main extends Application {
         FileControl.setProfile_manager(pm);
         try {
           FileControl.writeLog(path);
-          consoleOutput = "succesfully saved the file" + path;
+          consoleOutput = "succesfully saved the file: " + path;
         } catch (IOException f) {
           consoleOutput = "file save error: " + path;
         }
@@ -755,9 +755,34 @@ public class Main extends Application {
         }
       }
     });
+    Button clear = new Button("Clear");
+    clear.setLayoutX(190);
+    clear.setOnAction(new EventHandler<ActionEvent>() {
+
+      /**
+       * when you click clear it will delete all the user
+       * @param e
+       */
+      @Override
+      public void handle(ActionEvent e) {
+        List<Profile> list = pm.getGraph().getVertexList();
+        for(int i = 0; i < list.size(); i++) {
+          pm.getGraph().deleteUser(list.get(i));
+          FileControl.setLog("r " + list.get(i).getUserName());
+        }
+        centerUser = null;
+        try {
+          setCenterUser(canvas);
+          setCenterUserPane(centerUserPane);
+          consoleOutput = "network cleared";
+          setConsole(console);
+        } catch (Exception k) {
+        }
+      } 
+    });
     
     // insert all comoponents
-    linkPane.getChildren().addAll(load, save, signUp, gitHub);
+    linkPane.getChildren().addAll(load, save, signUp, clear, gitHub);
     
     return linkPane;
   }
